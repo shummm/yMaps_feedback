@@ -7,6 +7,11 @@
  * @return {Element}
  */
 function createDivWithText(text) {
+    let div = document.createElement('DIV');
+
+    div.innerHTML = text;
+
+    return div;
 }
 
 /**
@@ -16,6 +21,11 @@ function createDivWithText(text) {
  * @return {Element}
  */
 function createAWithHref(hrefValue) {
+    let a = document.createElement('A');
+
+    a.setAttribute('HREF', hrefValue);
+
+    return a;
 }
 
 /**
@@ -25,6 +35,7 @@ function createAWithHref(hrefValue) {
  * @param {Element} where - куда вставлять
  */
 function prepend(what, where) {
+    where.insertBefore(what, where.firstChild);
 }
 
 /**
@@ -42,6 +53,24 @@ function prepend(what, where) {
  * т.к. следующим соседом этих элементов является элемент с тегом P
  */
 function findAllPSiblings(where) {
+    let result = [];
+
+    function getEl(el) {
+        if (el.hasChildNodes()) {
+            let chNode = el.children;
+
+            for (let i = 0; i < chNode.length - 1; i++) {
+                getEl(chNode[i]);
+            }
+        } else if (el.hasChildNodes() === false &&
+            el.nextElementSibling.tagName === 'P') {
+            result.push(el);
+        }
+    }
+
+    getEl(where);
+
+    return result;
 }
 
 /**
@@ -53,10 +82,10 @@ function findAllPSiblings(where) {
  * @return {Array<string>}
  */
 function findError(where) {
-    var result = [];
+    let result = [];
 
-    for (var i = 0; i < where.childNodes.length; i++) {
-        result.push(where.childNodes[i].innerText);
+    for (let i = 0; i < where.children.length; i++) {
+        result.push(where.children[i].innerText);
     }
 
     return result;
@@ -76,6 +105,13 @@ function findError(where) {
  * должно быть преобразовано в <div></div><p></p>
  */
 function deleteTextNodes(where) {
+    for (let i = 0; i < where.childNodes.length; i++) {
+        let el = where.childNodes[i];
+
+        if (el.nodeType === 3) {
+            el.remove();
+        }
+    }
 }
 
 /**
@@ -89,6 +125,16 @@ function deleteTextNodes(where) {
  * должно быть преобразовано в <span><div><b></b></div><p></p></span>
  */
 function deleteTextNodesRecursive(where) {
+    for (let i = 0; i < where.childNodes.length; i++) {
+        let el = where.childNodes[i];
+
+        if (el.nodeType === 1) {
+            deleteTextNodesRecursive(el)
+        } else if (el.nodeType === 3) {
+            el.remove();
+            i--;
+        }
+    }
 }
 
 /**
@@ -113,7 +159,45 @@ function deleteTextNodesRecursive(where) {
  *   texts: 3
  * }
  */
-function collectDOMStat(root) {
+function collectDOMStat(root, obj) {
+    if (obj === undefined) {
+        obj = {
+            tags: {},
+            classes: {},
+            texts: 0,
+        };
+    }
+
+    for (let i = 0; i < root.childNodes.length; i++) {
+        let chNodes = root.childNodes[i];
+
+        if (chNodes.nodeType === 3) {
+            obj.texts++;
+        }
+        if (chNodes.nodeType === 1) {
+            let tags = chNodes.tagName;
+
+            if (obj.tags[tags] === undefined) {
+                obj.tags[tags] = 0;
+            }
+            obj.tags[tags]++;
+
+            if (chNodes.classList) {
+                for (let i = 0; i < chNodes.classList.length; i++) {
+                    let classes = chNodes.classList[i];
+
+                    if (obj.classes[classes] === undefined) {
+                        obj.classes[classes] = 0;
+                    }
+                    obj.classes[classes]++;
+                }
+            }
+
+            collectDOMStat(chNodes, obj);
+        }
+    }
+
+    return obj;
 }
 
 /**
@@ -148,6 +232,36 @@ function collectDOMStat(root) {
  * }
  */
 function observeChildNodes(where, fn) {
+    let obj = {
+        type: '',
+        nodes: [],
+    };
+    let arr = [];
+    let observer = new MutationObserver(function (els) {
+        els.forEach(function (el) {
+            if (el.addedNodes && el.addedNodes.length > 0) {
+
+                obj.type = 'insert';
+                el.addedNodes.forEach(function (e, i) {
+                    arr[i] = e;
+                });
+                obj.nodes = arr;
+            }
+            if (el.removedNodes && el.removedNodes.length > 0) {
+
+                obj.type = 'remove';
+                el.removedNodes.forEach(function (e, i) {
+                    arr[i] = e;
+                });
+                obj.nodes = arr;
+            }
+            fn(obj);
+        });
+
+    });
+    let config = { attributes: false, childList: true, characterData: false };
+
+    observer.observe(where, config);
 }
 
 export {
