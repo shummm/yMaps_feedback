@@ -54,14 +54,14 @@ function loadTowns() {
 function isMatching(full, chunk) {
 }
 
-let loadingBlock = homeworkContainer.querySelector('#loading-block');
-let filterBlock = homeworkContainer.querySelector('#filter-block');
-let filterInput = homeworkContainer.querySelector('#filter-input');
-let filterResult = homeworkContainer.querySelector('#filter-result');
-let townsPromise;
-
-filterInput.addEventListener('keyup', function() {
-});
+// let loadingBlock = homeworkContainer.querySelector('#loading-block');
+// let filterBlock = homeworkContainer.querySelector('#filter-block');
+// let filterInput = homeworkContainer.querySelector('#filter-input');
+// let filterResult = homeworkContainer.querySelector('#filter-result');
+// let townsPromise;
+//
+// filterInput.addEventListener('keyup', function() {
+// });
 
 export {
     loadTowns,
