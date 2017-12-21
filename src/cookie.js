@@ -42,68 +42,67 @@ let addBlock = homeworkContainer.querySelector('#add-block');
 
 let result = [];
 
-filterNameInput.addEventListener('keyup', function (e) {
-    let chunk = e.target.value;
-    let tr = document.createElement('tr');
-    let sortNames = [];
-
-    chunk = chunk.toLowerCase();
-    result.forEach(obj => {
-        if (obj.name.includes(chunk)) {
-            sortNames.push(obj)
-        }
-    });
+function rendering() {
     if (listTable.children.length > 0) {
-        for (let i = 0; i < listTable.children.length; i++) {
-            let el = listTable.children[i];
+        let remNode = listTable.querySelectorAll('TR');
 
-            if (el.tagName === 'TR') {
-                el.remove();
-            }
-        }
+        remNode.forEach(el => el.remove());
     }
-    if (chunk.length > 0) {
-        if (sortNames.length > 0) {
-            sortNames.forEach(obj => {
-                tr.innerHTML = `<td>${obj.name}</td><td>${obj.value}</td><td><button>Remove</button></td>`;
-                listTable.appendChild(tr);
-            });
-        }
+    if (result.length > 0) {
+
+        result.forEach(obj => {
+            let button = document.createElement('button');
+
+            button.textContent = 'Remove';
+            let newRow = listTable.insertRow(0);
+            let newCell = newRow.insertCell(0);
+
+            newCell.textContent = obj.name;
+            newCell = newRow.insertCell(1);
+            newCell.textContent = obj.value;
+            newCell = newRow.insertCell(2);
+            newCell.appendChild(button);
+        });
     }
+}
+
+function cookieInResult() {
+    if (document.cookie) {
+        let arrCookie = document.cookie.split('; ');
+
+        arrCookie.forEach(ck => {
+            let obj = {
+                name: '',
+                value: '',
+            };
+            let item = ck.split('=');
+
+            obj.name = item[0];
+            obj.value = item[1];
+            result.push(obj);
+        });
+        rendering();
+    }
+}
+
+function createCookie() {
+    let name = addNameInput.value;
+    let value = addValueInput.value;
+
+    document.cookie = `${name} = ${value}`;
+    cookieInResult();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    cookieInResult();
+});
+
+filterNameInput.addEventListener('keyup', function (e) {
+
 });
 
 addButton.addEventListener('click', () => {
-    let obj = {
-        name: '',
-        value: '',
-    };
-
-    if (addBlock.children.length > 2) {
-        for (let i = 0; i < addBlock.children.length; i++) {
-            let el = addBlock.children[i];
-
-            if (el.tagName === 'P') {
-                el.remove();
-            }
-        }
-    }
-    if (addNameInput.value.length > 0) {
-        obj.name = addNameInput.value;
-        obj.value = addValueInput.value;
-        document.cookie = `${obj.name}=${obj.value}`;
-        result.push(obj);
-        listTable.innerHTML += `<tr><td>${obj.name}</td><td>${obj.value}</td><td><button>Remove</button></td></tr>`;
-        addNameInput.value = '';
-        addValueInput.value = '';
-    } else {
-        let p = document.createElement('p');
-
-        p.textContent = 'Please enter name';
-        p.style.color = 'red';
-        addBlock.appendChild(p);
-
-        return false;
-    }
+    createCookie();
 });
 
 listTable.addEventListener('click', (e) => {
@@ -125,4 +124,6 @@ listTable.addEventListener('click', (e) => {
             document.cookie = `${name}=${value}; expires=${date.toGMTString()}`;
         }
     });
+    rendering();
 });
+
