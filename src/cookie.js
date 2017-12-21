@@ -38,19 +38,28 @@ let addNameInput = homeworkContainer.querySelector('#add-name-input');
 let addValueInput = homeworkContainer.querySelector('#add-value-input');
 let addButton = homeworkContainer.querySelector('#add-button');
 let listTable = homeworkContainer.querySelector('#list-table tbody');
-let addBlock = homeworkContainer.querySelector('#add-block');
+// let addBlock = homeworkContainer.querySelector('#add-block');
 
 let result = [];
 
-function rendering() {
-    if (listTable.children.length > 0) {
-        let remNode = listTable.querySelectorAll('TR');
-
-        remNode.forEach(el => el.remove());
-    }
+function rendering(arr) {
     if (result.length > 0) {
+        if (listTable.children.length > 0) {
+            let remNode = listTable.querySelectorAll('TR');
 
-        result.forEach(obj => {
+            remNode.forEach(el => el.remove());
+        }
+        if (arr) {
+            view(arr);
+        } else {
+            view(result);
+        }
+    }
+}
+
+function view(arrResult) {
+    if (arrResult instanceof Array && arrResult.length > 0) {
+        arrResult.forEach(obj => {
             let button = document.createElement('button');
 
             button.textContent = 'Remove';
@@ -67,22 +76,21 @@ function rendering() {
 }
 
 function cookieInResult() {
-    if (document.cookie) {
-        let arrCookie = document.cookie.split('; ');
+    result = [];
 
-        arrCookie.forEach(ck => {
-            let obj = {
-                name: '',
-                value: '',
-            };
-            let item = ck.split('=');
+    let arrCookie = document.cookie.split('; ');
 
+    arrCookie.forEach(ck => {
+        let item = ck.split('=');
+        let obj = {};
+
+        if (item[0] !== '') {
             obj.name = item[0];
             obj.value = item[1];
             result.push(obj);
-        });
-        rendering();
-    }
+        }
+    });
+    rendering();
 }
 
 function createCookie() {
@@ -91,18 +99,42 @@ function createCookie() {
 
     document.cookie = `${name} = ${value}`;
     cookieInResult();
+    addNameInput.value = '';
+    addValueInput.value = '';
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    cookieInResult();
-});
+function isMatching(chunk) {
+    let arrSort = [];
 
-filterNameInput.addEventListener('keyup', function (e) {
+    result.forEach(obj => {
+        if (obj.name.includes(chunk)) {
+            arrSort.push(obj);
+        }
+    });
 
-});
+    return arrSort;
+}
+
+function deleteCookie(name, value) {
+    let date = new Date();
+    let idx = result.indexOf(name);
+
+    if (idx !== -1) {
+        result.splice(idx, 1);
+    }
+    date.setTime(date.getTime() - 1);
+    document.cookie = `${name}=${value}; expires=${date.toGMTString()}`;
+}
 
 addButton.addEventListener('click', () => {
     createCookie();
+});
+
+filterNameInput.addEventListener('keyup', function (e) {
+    let chunk = e.target.value;
+    let resultSort = isMatching(chunk);
+
+    rendering(resultSort);
 });
 
 listTable.addEventListener('click', (e) => {
@@ -113,17 +145,12 @@ listTable.addEventListener('click', (e) => {
             e.target.parentNode.parentNode.remove();
             let name = e.target.parentNode.parentNode.firstChild.textContent;
             let value = e.target.parentNode.parentNode.firstChild.nextSibling.textContent;
-            let date = new Date();
-            let idx = result.indexOf(name);
 
-            if (idx !== -1) {
-                result.splice(idx, 1);
-            }
-            date.setTime(date.getTime() - 1);
-
-            document.cookie = `${name}=${value}; expires=${date.toGMTString()}`;
+            deleteCookie(name, value);
         }
     });
-    rendering();
+    cookieInResult();
 });
-
+document.addEventListener('DOMContentLoaded', () => {
+    cookieInResult();
+});
