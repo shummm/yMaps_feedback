@@ -49,10 +49,15 @@ function rendering(arr) {
 
             remNode.forEach(el => el.remove());
         }
-        if (arr) {
-            view(arr);
-        } else {
+        if (filterNameInput.value.length === 0) {
             view(result);
+        } else if (filterNameInput.value.length > 0) {
+            let chunk = filterNameInput.value;
+            let r = isMatching(chunk);
+
+            view(r);
+        } else if (arr) {
+            view(arr);
         }
     }
 }
