@@ -16,7 +16,7 @@ loaders.push({
 module.exports = {
     entry: {
         main: './src/index.js',
-        cookie: './src/cookie.js'
+        friendFilter: './src/friendFilter.js'
     },
     output: {
         filename: '[name].[hash].js',
@@ -40,10 +40,10 @@ module.exports = {
             chunks: ['main']
         }),
         new HtmlPlugin({
-            title: 'Div Drag And Drop',
-            template: 'cookie.hbs',
-            filename: 'cookie.html',
-            chunks: ['cookie']
+            title: 'friendsFilter_VK',
+            template: 'friendFilter.hbs',
+            filename: 'friendFilter.html',
+            chunks: ['friendFilter']
         }),
         new CleanWebpackPlugin(['dist'])
     ]
