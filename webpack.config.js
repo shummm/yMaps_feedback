@@ -16,7 +16,7 @@ loaders.push({
 module.exports = {
     entry: {
         main: './src/index.js',
-        friendFilter: './src/friendFilter.js'
+        friendFilter: './src/geo_comment.js'
     },
     output: {
         filename: '[name].[hash].js',
@@ -40,10 +40,10 @@ module.exports = {
             chunks: ['main']
         }),
         new HtmlPlugin({
-            title: 'friendsFilter_VK',
-            template: 'friendFilter.hbs',
-            filename: 'friendFilter.html',
-            chunks: ['friendFilter']
+            title: 'geo_comment',
+            template: 'geo_comment.hbs',
+            filename: 'geo_comment.html',
+            chunks: ['geo_comment']
         }),
         new CleanWebpackPlugin(['dist'])
     ]
