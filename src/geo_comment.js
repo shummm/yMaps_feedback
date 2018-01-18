@@ -159,6 +159,22 @@ let popupOpen = function () {
     popup.style.top = event.clientY + 'px';
     popup.style.left = event.clientX + 'px';
     popup.style.display = 'block';
+    if (event.clientY < 550) {
+        let scrollY = (550 - event.clientY);
+        if (scrollY !== null) {
+            popup.style.top = (event.clientY + scrollY) + 'px';
+        }
+        let action = new ymaps.map.action.Continuous();
+        myMap.action.execute(action);
+
+        let center = myMap.getGlobalPixelCenter(),
+            zoom = myMap.getZoom();
+            center[1] += -scrollY;
+            action.tick({
+                globalPixelCenter: center,
+                zoom: zoom
+            });
+    }
 };
 
 /*popup с отзывами*/
