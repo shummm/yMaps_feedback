@@ -15,8 +15,7 @@ loaders.push({
 
 module.exports = {
     entry: {
-        main: './src/index.js',
-        friendFilter: './src/geo_comment.js'
+        main: './src/geo.js'
     },
     output: {
         filename: '[name].[hash].js',
@@ -27,23 +26,11 @@ module.exports = {
         loaders
     },
     plugins: [
-        // new webpack.optimize.UglifyJsPlugin({
-        //     sourceMap: true,
-        //     compress: {
-        //         drop_debugger: false
-        //     }
-        // }),
         new ExtractTextPlugin('styles.css'),
         new HtmlPlugin({
-            title: 'Main Homework',
+            title: 'geo',
             template: 'index.hbs',
             chunks: ['main']
-        }),
-        new HtmlPlugin({
-            title: 'geo_comment',
-            template: 'geo_comment.hbs',
-            filename: 'geo_comment.html',
-            chunks: ['geo_comment']
         }),
         new CleanWebpackPlugin(['dist'])
     ]

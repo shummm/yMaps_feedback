@@ -1,7 +1,7 @@
 ymaps.ready(init);
 
 let myMap,
-    iAm =[],
+    iAm = [],
     myPlacemark,
     coords,
     points = [],
@@ -14,6 +14,7 @@ let myMap,
     inputPlace = document.querySelector('.feedback-place input'),
     inputText = document.querySelector('.feedback-text textarea'),
     buttonClose = document.querySelector('#close'),
+    linkFullModal = document.querySelector('#linkFullModal'),
     buttonAdd = document.querySelector('#add');
 
 function init() {
@@ -21,8 +22,8 @@ function init() {
         center: [55.7522222, 37.6155556],
         zoom: 13
     }, {
-        searchControlProvider: 'yandex#search'
-    });
+            searchControlProvider: 'yandex#search'
+        });
 
     /*Определение моего места нахождения*/
     if (navigator.geolocation) {
@@ -30,13 +31,13 @@ function init() {
             let lat = pos.coords.latitude;
             let lng = pos.coords.longitude;
             iAm = [lat, lng];
-                myMap.geoObjects
+            myMap.geoObjects
                 .add(new ymaps.Placemark(iAm, {
                     iconContent: '<strong>Я</strong>'
                 }, {
-                    preset: 'islands#blackStretchyIcon',
-                    iconColor: '#0095b6'
-                }));
+                        preset: 'islands#blackStretchyIcon',
+                        iconColor: '#0095b6'
+                    }));
         });
     }
 
@@ -92,14 +93,14 @@ function init() {
 
             myPlacemark.properties
                 .set({
-                  /*Формируем строку с данными об объекте.*/
+                    /*Формируем строку с данными об объекте.*/
                     iconCaption: [
-                       /*Название населенного пункта или вышестоящее административно-территориальное образование.*/
+                        /*Название населенного пункта или вышестоящее административно-территориальное образование.*/
                         firstGeoObject.getLocalities().length ? firstGeoObject.getLocalities() : firstGeoObject.getAdministrativeAreas(),
                         /*Получаем путь до топонима, если метод вернул null, запрашиваем наименование здания.*/
                         firstGeoObject.getThoroughfare() || firstGeoObject.getPremise()
                     ].filter(Boolean).join(', '),
-                  /*В качестве контента балуна задаем строку с адресом объекта.*/
+                    /*В качестве контента балуна задаем строку с адресом объекта.*/
                     balloonContent: firstGeoObject.getAddressLine()
                 });
             /*Записываем адресс обьекта в хедер окна.*/
@@ -107,26 +108,23 @@ function init() {
         });
     }
 
-    /*Дабавляем данные при нажатии на кнопку*/
+    /* Дабавляем данные при нажатии на кнопку */
     buttonAdd.addEventListener('click', function () {
         if (inputName.value.length > 0 && inputPlace.value.length > 0 && inputText.value.length > 0) {
-
             let addressLink = address.textContent;
             let newPlacemark = new ymaps.Placemark(coords, {
                 balloonContentHeader: inputPlace.value,
-                balloonContentBody: `<div class="popup-link"><a onclick="popupOpenFull()" >${addressLink}</a><p>${inputText.value}</p></div>`,
+                balloonContentBody: `<div class="popup-link"><span id="linkFullModal" >${addressLink}</span><p>${inputText.value}</p></div>`,
                 balloonContentFooter: now()
             }, {
-                preset: 'islands#violetDotIconWithCaption',
-                draggable: false,
-                openBalloonOnClick: false
-            });
-
+                    preset: 'islands#violetDotIconWithCaption',
+                    draggable: false,
+                    openBalloonOnClick: false
+                });
             myMap.geoObjects.add(newPlacemark);
             clusterer.add(newPlacemark);
             points.push(newPlacemark);
-            console.log(points);
-            /*Шаблон сообщения*/
+            /* Шаблон сообщения */
             if (message.textContent === 'Добавте свой первый комментарий') message.textContent = '';
             newPlacemark.commentContent =
                 `<div class="message">
@@ -148,13 +146,13 @@ function init() {
                 address.textContent = newPlacemark.place;
                 return coords;
             });
-        } else {
-            alert('Заполните пустые поля');
+        } else  {
+                 alert('Заполните пустые поля');
         }
     });
 }
 
-/*Инициализация popup*/
+/* Инициализация popup */
 let popupOpen = function () {
     popup.style.top = event.clientY + 'px';
     popup.style.left = event.clientX + 'px';
@@ -169,15 +167,15 @@ let popupOpen = function () {
 
         let center = myMap.getGlobalPixelCenter(),
             zoom = myMap.getZoom();
-            center[1] += -scrollY;
-            action.tick({
-                globalPixelCenter: center,
-                zoom: zoom
-            });
+        center[1] += -scrollY;
+        action.tick({
+            globalPixelCenter: center,
+            zoom: zoom
+        });
     }
 };
 
-/*popup с отзывами*/
+/* popup с отзывами */
 let popupOpenFull = function () {
     clearInputValue();
     let a = document.querySelector('.popup-link');
@@ -220,3 +218,9 @@ buttonClose.addEventListener('click', () => {
     popup.style.display = 'none';
     clearInputValue();
 });
+
+document.addEventListener('click', ({ target }) => {
+    if (target.getAttribute('id') === 'linkFullModal') {
+        popupOpenFull();
+    }
+})
